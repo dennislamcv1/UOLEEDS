@@ -1,0 +1,80 @@
+---
+title: "Satisfaction"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+
+```{r}
+sat <- read.csv("satisfaction.csv")
+
+```
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+sat_long <- data.frame(
+  Score  = c(sat$sat.before, sat$sat.after),
+  Timing = rep(c("Before", "After"), each = nrow(sat))
+)
+sat_long$Timing <- factor(sat_long$Timing, levels = c("Before", "After"))
+
+ggplot(sat_long, aes(x = Timing, y = Score, fill = Timing)) +
+  geom_boxplot(outlier.colour = "red", width = 0.5, alpha = 0.7) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 4, colour = "white") +
+  scale_fill_manual(values = c("Before" = "#4C9BE8", "After" = "#E8834C")) +
+  labs(
+    title    = "Patient Satisfaction Before vs After Visit",
+    subtitle = "Diamond = mean; red dots = outliers",
+    x        = NULL,
+    y        = "Satisfaction Score"
+  ) +
+  theme_bw(base_size = 13) +
+  theme(legend.position = "none")
+```
+
+```{r}
+change_counts <- as.data.frame(table(Change = sat$change))
+change_counts$Change <- as.numeric(as.character(change_counts$Change))
+
+ggplot(change_counts, aes(x = factor(Change), y = Freq,
+                           fill = factor(sign(Change),
+                                         labels = c("Decreased", "No change", "Increased")))) +
+  geom_col(colour = "grey30", width = 0.6) +
+  scale_fill_manual(
+    values = c("Decreased" = "#D9534F", "No change" = "#AAB7B8", "Increased" = "#5CB85C"),
+    name   = "Direction"
+  ) +
+  labs(
+    title = "Change in Satisfaction Score After Visit",
+    x     = "Change (After − Before)",
+    y     = "Number of Patients"
+  ) +
+  theme_bw(base_size = 13)
+```
+
+```{r}
+ggplot(sat, aes(x = sat.before, y = sat.after)) +
+  geom_jitter(width = 0.15, height = 0.15,
+              colour = "#4C9BE8", alpha = 0.7, size = 2.5) +
+  geom_abline(intercept = 0, slope = 1,
+              linetype = "dashed", colour = "grey40") +
+  annotate("text", x = 8.5, y = 8.1, label = "No change line",
+           colour = "grey40", size = 3.5, angle = 35) +
+  scale_x_continuous(breaks = 4:10) +
+  scale_y_continuous(breaks = 4:10) +
+  labs(
+    title    = "Satisfaction Score: Before vs After Visit",
+    subtitle = "Points above dashed line = improvement",
+    x        = "Satisfaction Before Visit",
+    y        = "Satisfaction After Visit"
+  ) +
+  theme_bw(base_size = 13)
+```
+
+
+

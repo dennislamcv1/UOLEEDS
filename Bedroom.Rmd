@@ -1,0 +1,46 @@
+---
+title: "Bedroom"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+
+```{r}
+housing <- read.csv("housing.csv")
+```
+
+```{r}
+housing$bedrooms <- factor(
+  housing$n.rooms,
+  levels = 0:5,
+  labels = c("0 bedrooms", "1 bedroom", "2 bedrooms",
+             "3 bedrooms", "4 bedrooms", "5+ bedrooms")
+)
+
+cols <- c("#4e79a7", "#f28e2b", "#59a14f", "#e15759", "#76b7b2", "#b07aa1")
+
+boxplot(
+  income ~ bedrooms,
+  data    = housing,
+  col     = adjustcolor(cols, alpha.f = 0.85),
+  border  = "grey30",
+  xlab    = "Number of Bedrooms",
+  ylab    = "Household Income (£)",
+  main    = "Household Income by Number of Bedrooms\nUK Housing Survey 2021/22",
+  yaxt    = "n",   # custom y-axis below
+  outline = TRUE
+)
+
+axis(2, at = axTicks(2),
+     labels = paste0("£", formatC(axTicks(2), format = "d", big.mark = ",")))
+
+n_labels <- table(housing$bedrooms)
+mtext(paste0("n=", n_labels), side = 1, line = 2.5,
+      at = seq_along(levels(housing$bedrooms)), cex = 0.75, col = "grey40")
+
+abline(h = axTicks(2), lty = 2, col = "grey80")
+
+```
+
